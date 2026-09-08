@@ -80,7 +80,7 @@ st.markdown("""
     .nav-bar { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 2.5rem; }
     .brand-logo-group { display: flex; align-items: center; gap: 16px; }
     .brand-icon-img { height: 52px; width: 52px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0, 245, 212, 0.35); }
-    .brand-name-img { height: 42px; width: auto; object-fit: contain; border-radius: 10px;}
+    .brand-name-img { height: 42px; width: auto; object-fit: contain; }
     .brand-badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
     .brand-subtext { font-size: 0.88rem; font-weight: 600; color: #8be0d0 !important; text-align: right; }
     
@@ -89,7 +89,22 @@ st.markdown("""
     .hero-subtitle { font-size: 1.05rem !important; font-weight: 500 !important; color: #a7f3d0 !important; max-width: 800px !important; margin: 0 auto !important; }
     
     .stTextArea textarea { border-radius: 12px !important; background-color: rgba(1, 22, 27, 0.9) !important; color: #ffffff !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; padding: 12px !important; }
+    
+    /* Multiselect Main Field & Popup Dropdown Styling */
     div[data-testid="stMultiSelect"] div[data-baseweb="select"] { background-color: rgba(1, 22, 27, 0.9) !important; border-radius: 10px !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; }
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+        background-color: #01161b !important;
+        border: 1px solid rgba(0, 245, 212, 0.35) !important;
+        border-radius: 10px !important;
+    }
+    li[role="option"] {
+        background-color: #01161b !important;
+        color: #ffffff !important;
+    }
+    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+        background-color: rgba(0, 245, 212, 0.2) !important;
+        color: #00f5d4 !important;
+    }
 
     /* Crisp Custom Domain Card & Buttons */
     .domain-card {
