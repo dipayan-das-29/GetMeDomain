@@ -82,8 +82,8 @@ st.markdown("""
     .nav-bar { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 2.5rem; }
     .brand-logo-group { display: flex; align-items: center; gap: 16px; }
     .brand-icon-img { height: 52px; width: 52px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0, 245, 212, 0.35); }
-    .brand-name-img { height: 42px; width: auto; object-fit: contain; }
-    .brand-badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
+    .brand-name-img { height: 42px; width: auto; object-fit: contain; border-radius: 8px;}
+    .brand-badge { font-size: 0.42rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
     .brand-subtext { font-size: 0.88rem; font-weight: 600; color: #8be0d0 !important; text-align: right; }
     
     .hero-container { text-align: center; margin-bottom: 2.5rem; width: 100%; }
@@ -173,7 +173,7 @@ st.markdown(f"""
         <div class="brand-logo-group">
             <img src="{icon_src}" class="brand-icon-img" alt="Icon">
             {logo_html}
-            <span class="brand-badge">Budget AI</span>
+            <span class="brand-badge">Beta</span>
         </div>
         <div class="brand-subtext">CHEAP RDAP ENGINE<br><span style="font-size: 0.75rem; opacity: 0.8;">Live Availability Check</span></div>
     </div>
