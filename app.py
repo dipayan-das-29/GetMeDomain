@@ -70,7 +70,9 @@ st.markdown("""
                     radial-gradient(circle at 50% 80%, rgba(0, 82, 104, 0.35) 0%, transparent 50%);
         filter: blur(60px); animation: orbRotate 22s ease-in-out infinite, pulseGlow 10s ease-in-out infinite; pointer-events: none;
     }
-    html, body, p, span, div, label, .stMarkdown, h1, h2, h3 {
+
+    /* Base Text Styling - Avoiding global 'div' and 'span' overrides */
+    html, body, p, label, .stMarkdown, h1, h2, h3 {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: #ffffff !important;
     }
@@ -88,22 +90,59 @@ st.markdown("""
     .hero-title { font-size: 3.1rem !important; font-weight: 800 !important; color: #ffffff !important; margin-bottom: 0.8rem !important; }
     .hero-subtitle { font-size: 1.05rem !important; font-weight: 500 !important; color: #a7f3d0 !important; max-width: 800px !important; margin: 0 auto !important; }
     
-    .stTextArea textarea { border-radius: 12px !important; background-color: rgba(1, 22, 27, 0.9) !important; color: #ffffff !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; padding: 12px !important; }
-    
-    /* Multiselect Main Field & Popup Dropdown Styling */
-    div[data-testid="stMultiSelect"] div[data-baseweb="select"] { background-color: rgba(1, 22, 27, 0.9) !important; border-radius: 10px !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; }
-    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+    /* Text Area Styling */
+    .stTextArea textarea {
+        border-radius: 12px !important;
+        background-color: rgba(1, 22, 27, 0.95) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 245, 212, 0.3) !important;
+        padding: 12px !important;
+    }
+
+    /* Multiselect Field Container */
+    div[data-testid="stMultiSelect"] div[data-baseweb="select"] {
+        background-color: rgba(1, 22, 27, 0.95) !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(0, 245, 212, 0.3) !important;
+        color: #ffffff !important;
+    }
+
+    /* Dropdown Popover / Menu BaseWeb Fixes */
+    div[data-baseweb="popover"],
+    div[data-baseweb="menu"],
+    div[data-baseweb="popover"] > div,
+    ul[role="listbox"] {
         background-color: #01161b !important;
         border: 1px solid rgba(0, 245, 212, 0.35) !important;
         border-radius: 10px !important;
+        color: #ffffff !important;
     }
-    li[role="option"] {
+
+    /* Dropdown Items Fixes */
+    li[role="option"],
+    div[aria-selected],
+    div[data-baseweb="option"] {
         background-color: #01161b !important;
         color: #ffffff !important;
     }
-    li[role="option"]:hover, li[role="option"][aria-selected="true"] {
+    li[role="option"]:hover,
+    li[role="option"][aria-selected="true"],
+    div[aria-selected="true"] {
+        background-color: rgba(0, 245, 212, 0.25) !important;
+        color: #00f5d4 !important;
+    }
+
+    /* Secondary Button Styling (Fixes the white background on the Rerun button) */
+    div[data-testid="stButton"] > button:not([kind="primary"]) {
+        background-color: rgba(1, 22, 27, 0.95) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 245, 212, 0.35) !important;
+        border-radius: 8px !important;
+    }
+    div[data-testid="stButton"] > button:not([kind="primary"]):hover {
         background-color: rgba(0, 245, 212, 0.2) !important;
         color: #00f5d4 !important;
+        border-color: #00f5d4 !important;
     }
 
     /* Crisp Custom Domain Card & Buttons */
