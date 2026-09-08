@@ -129,9 +129,10 @@ class QueueLogHandler(BaseCallbackHandler):
 
 @st.cache_resource
 def get_agent():
-    ollama_api_key = os.getenv("OLLAMA_API_KEY")
-    ollama_base_url = os.getenv("OLLAMA_BASE_URL", "https://ollama.com/v1")
-    ollama_model = os.getenv("OLLAMA_MODEL", "gpt-oss:120b")
+    # Safely look up secrets in Streamlit Cloud or fall back to local .env
+    ollama_api_key = st.secrets.get("OLLAMA_API_KEY") or os.getenv("OLLAMA_API_KEY")
+    ollama_base_url = st.secrets.get("OLLAMA_BASE_URL") or os.getenv("OLLAMA_BASE_URL", "https://ollama.com/v1")
+    ollama_model = st.secrets.get("OLLAMA_MODEL") or os.getenv("OLLAMA_MODEL", "gpt-oss:120b")
 
     if not ollama_api_key:
         st.error("❌ OLLAMA_API_KEY is missing from your .env file!")
@@ -161,8 +162,8 @@ STRATEGY FOR FAST EXECUTION:
 # 5. UI LAYOUT & CONTROLS
 # =====================================================================
 
-st.title("🌐 GetMeDomain AI")
-st.caption("Parallel RDAP Domain Finder powered by Ollama Cloud")
+st.title("GetMeDomain AI")
+st.caption("#DesiVidesi")
 
 with st.sidebar:
     st.header("Settings")
