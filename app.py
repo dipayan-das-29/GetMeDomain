@@ -81,26 +81,35 @@ st.markdown("""
     .brand-logo-group { display: flex; align-items: center; gap: 16px; }
     .brand-icon-img { height: 52px; width: 52px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0, 245, 212, 0.35); }
     .brand-name-img { height: 42px; width: auto; object-fit: contain; border-radius: 10px;}
-    .brand-badge { font-size: 0.40rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
+    .brand-badge { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
     .brand-subtext { font-size: 0.88rem; font-weight: 600; color: #8be0d0 !important; text-align: right; }
     
     .hero-container { text-align: center; margin-bottom: 2.5rem; width: 100%; }
     .hero-title { font-size: 3.1rem !important; font-weight: 800 !important; color: #ffffff !important; margin-bottom: 0.8rem !important; }
     .hero-subtitle { font-size: 1.05rem !important; font-weight: 500 !important; color: #a7f3d0 !important; max-width: 800px !important; margin: 0 auto !important; }
     
-    .stTextArea textarea { border-radius: 12px !important; background-color: rgba(1, 22, 27, 0.85) !important; color: #ffffff !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; }
-    
-    div[data-testid="stVerticalBlock"] > div[data-testid="stContainer"] {
-        background-color: rgba(2, 28, 38, 0.95) !important;
-        border: 1px solid rgba(0, 245, 212, 0.35) !important;
-        border-radius: 14px !important;
-        padding: 1.2rem !important;
-        margin-bottom: 1.2rem !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
-    }
+    .stTextArea textarea { border-radius: 12px !important; background-color: rgba(1, 22, 27, 0.9) !important; color: #ffffff !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; padding: 12px !important; }
+    div[data-testid="stMultiSelect"] div[data-baseweb="select"] { background-color: rgba(1, 22, 27, 0.9) !important; border-radius: 10px !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; }
 
-    .domain-title { font-size: 1.2rem; font-weight: 700; color: #00f5d4 !important; margin-bottom: 4px; font-family: 'Space Mono', monospace !important; }
-    .status-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #00f5d4; background: rgba(0, 245, 212, 0.15); border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 9px; border-radius: 12px; margin-bottom: 12px; }
+    /* Crisp Custom Domain Card & Buttons */
+    .domain-card {
+        background-color: rgba(2, 28, 38, 0.95);
+        border: 1px solid rgba(0, 245, 212, 0.35);
+        border-radius: 14px;
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+    .domain-title { font-size: 1.15rem; font-weight: 700; color: #00f5d4 !important; margin-bottom: 6px; font-family: 'Space Mono', monospace !important; }
+    .status-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #00f5d4; background: rgba(0, 245, 212, 0.15); border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 8px; border-radius: 12px; margin-bottom: 14px; }
+    
+    .btn-row { display: flex; gap: 10px; width: 100%; }
+    .reg-btn {
+        flex: 1; text-align: center; background-color: rgba(0, 245, 212, 0.1); color: #00f5d4 !important;
+        border: 1px solid rgba(0, 245, 212, 0.35); padding: 8px 12px; border-radius: 8px; font-size: 0.82rem;
+        font-weight: 600; text-decoration: none; transition: all 0.2s ease;
+    }
+    .reg-btn:hover { background-color: rgba(0, 245, 212, 0.25); border-color: #00f5d4; color: #ffffff !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -110,7 +119,7 @@ st.markdown(f"""
         <div class="brand-logo-group">
             <img src="{icon_src}" class="brand-icon-img" alt="Icon">
             {logo_html}
-            <span class="brand-badge">Beta</span>
+            <span class="brand-badge">Budget AI</span>
         </div>
         <div class="brand-subtext">CHEAP RDAP ENGINE<br><span style="font-size: 0.75rem; opacity: 0.8;">Live Availability Check</span></div>
     </div>
@@ -125,17 +134,19 @@ st.markdown("""
 
 user_idea = st.text_area(
     "Describe your product or business concept:",
-    placeholder="e.g. An AI agent that converts technical books into interactive voice lessons...",
-    height=100,
+    placeholder="e.g. An AI platform that converts technical documentation into interactive audio lessons...",
+    height=110,
 )
+
+st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
 tld_options = st.multiselect(
     "Target Budget Extensions (TLDs):",
     [".in", ".co.in", ".com", ".org", ".net", ".ai"],
-    default=[],
+    default=[".in", ".com"],
 )
 
-st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
 
 btn_col1, btn_col2 = st.columns([1, 1])
 with btn_col1:
@@ -214,16 +225,14 @@ if search_clicked or rerun_clicked:
 
                 final_content = agent_result["response"]["messages"][-1].content
                 st.session_state.last_results = final_content
-                
-                # Force a clean app rerun so the status box disappears and results render fresh
                 st.rerun()
 
             except Exception as e:
                 status.update(label="❌ Search failed!", state="error")
                 st.error(f"Execution error: {str(e)}")
 
-# Render results independently from a fresh script rerun state
 if st.session_state.last_results:
+    st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
     st.divider()
 
     content = st.session_state.last_results
@@ -238,7 +247,7 @@ if st.session_state.last_results:
     )
 
     st.subheader(
-        f" 10 Verified Budget-Friendly Domains (Attempt #{st.session_state.run_count})"
+        f"10 Verified Budget-Friendly Domains (Attempt #{st.session_state.run_count})"
     )
 
     if unique_domains:
@@ -262,20 +271,21 @@ if st.session_state.last_results:
                 namecheap_url = f"https://www.namecheap.com/domains/registration/results/?domain={urllib.parse.quote(domain)}"
 
                 with cols[idx]:
-                    with st.container(border=True):
-                        st.markdown(f'<div class="domain-title">{domain}</div>', unsafe_allow_html=True)
-                        st.markdown(f'<span class="status-badge">🟢 VERIFIED AVAILABLE</span>', unsafe_allow_html=True)
-                        
-                        b_col1, b_col2 = st.columns(2)
-                        with b_col1:
-                            st.link_button("GoDaddy ↗", godaddy_url, use_container_width=True)
-                        with b_col2:
-                            st.link_button("Namecheap ↗", namecheap_url, use_container_width=True)
+                    st.markdown(f"""
+                        <div class="domain-card">
+                            <div class="domain-title">{domain}</div>
+                            <span class="status-badge">🟢 VERIFIED AVAILABLE</span>
+                            <div class="btn-row">
+                                <a href="{godaddy_url}" target="_blank" class="reg-btn">GoDaddy ↗</a>
+                                <a href="{namecheap_url}" target="_blank" class="reg-btn">Namecheap ↗</a>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
     else:
         st.warning("See agent detailed output below.")
 
-    # st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
-    # with st.expander(
-    #     "📄 View Detailed Agent Reasoning & Full Output", expanded=False
-    # ):
-    #     st.markdown(content)
+    st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+    with st.expander(
+        "📄 View Detailed Agent Reasoning & Full Output", expanded=False
+    ):
+        st.markdown(content)
