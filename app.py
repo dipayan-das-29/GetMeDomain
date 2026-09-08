@@ -1,197 +1,177 @@
+import base64
+import os
 import queue
 import re
 import threading
 import time
+import urllib.parse
 import streamlit as st
-from agent import QueueLogHandler, get_agent
+from backend import QueueLogHandler, get_agent
 
-# Page Config - Wide Layout Enabled
+# 1. Page Configuration
 st.set_page_config(
-    page_title="GetMeDomain — AI Domain Finder",
-    page_icon="🐶",
+    page_title="GetMeDomain - AI Domain Intelligence",
+    page_icon="🦊",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# Custom Full-Width Layout & Typography CSS
-st.markdown(
-    """
-    <style>
-    /* Import Modern Web Font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    /* Global Typography Reset */
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        -webkit-font-smoothing: antialiased;
-    }
+def get_image_base64_with_fallbacks(filename_list):
+    for name in filename_list:
+        file_path = os.path.join(BASE_DIR, name)
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as img_file:
+                ext = name.split(".")[-1].lower()
+                mime_type = "image/png" if ext == "png" else "image/jpeg"
+                encoded = base64.b64encode(img_file.read()).decode("utf-8")
+                return f"data:{mime_type};base64,{encoded}"
+    return None
 
-    /* Hide default Streamlit overhead */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Utilize Full Screen Width */
-    .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 3rem !important;
-        padding-left: 3rem !important;
-        padding-right: 3rem !important;
-        max-width: 100% !important;
-    }
+icon_src = get_image_base64_with_fallbacks(["image (2).jpg", "image (2).png", "image (2).jpeg", "image(2).jpg"])
+logo_src = get_image_base64_with_fallbacks(["image (3).png", "image (3).jpg", "image (3).jpeg", "image(3).png"])
 
-    /* Top Navigation Bar */
-    .nav-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid #22272e;
-        margin-bottom: 2.5rem;
-    }
-    .brand-logo-group {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .brand-icon {
-        font-size: 1.8rem;
-    }
-    .brand-name {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: -0.5px;
-    }
-    .brand-badge {
-        font-size: 0.75rem;
-        background: rgba(0, 212, 178, 0.12);
-        color: #00D4B2;
-        border: 1px solid rgba(0, 212, 178, 0.3);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
+DEFAULT_FOX_SVG = """data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,15 90,85 10,85' fill='%2300f5d4'/><circle cx='50' cy='50' r='20' fill='%2300363e'/></svg>"""
+if not icon_src:
+    icon_src = DEFAULT_FOX_SVG
 
-    /* Full-Width Hero Section */
-    .hero-container {
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
-    .hero-title {
-        font-size: 3.2rem;
-        font-weight: 800;
-        letter-spacing: -1.2px;
-        color: #ffffff;
-        margin-bottom: 0.8rem;
-        line-height: 1.1;
-    }
-    .hero-subtitle {
-        font-size: 1.25rem;
-        color: #8b949e;
-        font-weight: 400;
-        max-width: 800px;
-        margin: 0 auto;
-        line-height: 1.5;
-    }
-
-    /* Streamlit Text Area Customization */
-    .stTextArea textarea {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.05rem !important;
-        border-radius: 10px !important;
-        background-color: #0d1117 !important;
-        border: 1px solid #30363d !important;
-    }
-    .stTextArea textarea:focus {
-        border-color: #00D4B2 !important;
-        box-shadow: 0 0 0 1px #00D4B2 !important;
-    }
-
-    /* Cards Styling */
-    .domain-title {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #00D4B2;
-        margin-bottom: 6px;
-        letter-spacing: -0.4px;
-        font-family: 'Inter', monospace;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# State Management
 if "run_count" not in st.session_state:
     st.session_state.run_count = 1
 if "last_results" not in st.session_state:
     st.session_state.last_results = None
 
-# 1. Full-Width Top Navigation Header
-st.markdown(
-    """
+st.markdown("""
+    <style>
+    @import url('https://api.fontshare.com/v2/css?f[]=clash-display@700,600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap');
+
+    .stApp, div[data-testid="stAppViewContainer"], div[data-testid="stHeader"] {
+        background: transparent !important;
+    }
+    body { background-color: #021317 !important; }
+
+    [data-testid="collapsedControl"] { display: none !important; }
+    section[data-testid="stSidebar"] { display: none !important; }
+
+    @keyframes orbRotate {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.15); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+    @keyframes pulseGlow {
+        0%, 100% { opacity: 0.65; }
+        50% { opacity: 0.95; }
+    }
+    .stApp::before {
+        content: ""; position: fixed; top: -20%; left: -20%; width: 140vw; height: 140vh; z-index: -2;
+        background: radial-gradient(circle at 20% 20%, rgba(0, 245, 212, 0.18) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 30%, rgba(0, 168, 232, 0.22) 0%, transparent 45%),
+                    radial-gradient(circle at 50% 80%, rgba(0, 82, 104, 0.35) 0%, transparent 50%);
+        filter: blur(60px); animation: orbRotate 22s ease-in-out infinite, pulseGlow 10s ease-in-out infinite; pointer-events: none;
+    }
+    html, body, p, span, div, label, .stMarkdown, h1, h2, h3 {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        color: #ffffff !important;
+    }
+    #MainMenu, footer, header { visibility: hidden; }
+    .block-container { padding-top: 1.8rem !important; padding-bottom: 2.5rem !important; max-width: 1200px !important; margin: 0 auto !important; }
+    
+    .nav-bar { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 2.5rem; }
+    .brand-logo-group { display: flex; align-items: center; gap: 16px; }
+    .brand-icon-img { height: 52px; width: 52px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0, 245, 212, 0.35); }
+    .brand-name-img { height: 42px; width: auto; object-fit: contain; border-radius: 10px;}
+    .brand-badge { font-size: 0.40rem; font-weight: 700; text-transform: uppercase; background: rgba(0, 245, 212, 0.15); color: #00f5d4 !important; border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 10px; border-radius: 20px; }
+    .brand-subtext { font-size: 0.88rem; font-weight: 600; color: #8be0d0 !important; text-align: right; }
+    
+    .hero-container { text-align: center; margin-bottom: 2.5rem; width: 100%; }
+    .hero-title { font-size: 3.1rem !important; font-weight: 800 !important; color: #ffffff !important; margin-bottom: 0.8rem !important; }
+    .hero-subtitle { font-size: 1.05rem !important; font-weight: 500 !important; color: #a7f3d0 !important; max-width: 800px !important; margin: 0 auto !important; }
+    
+    .stTextArea textarea { border-radius: 12px !important; background-color: rgba(1, 22, 27, 0.85) !important; color: #ffffff !important; border: 1px solid rgba(0, 245, 212, 0.3) !important; }
+    
+    div[data-testid="stVerticalBlock"] > div[data-testid="stContainer"] {
+        background-color: rgba(2, 28, 38, 0.95) !important;
+        border: 1px solid rgba(0, 245, 212, 0.35) !important;
+        border-radius: 14px !important;
+        padding: 1.2rem !important;
+        margin-bottom: 1.2rem !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    .domain-title { font-size: 1.2rem; font-weight: 700; color: #00f5d4 !important; margin-bottom: 4px; font-family: 'Space Mono', monospace !important; }
+    .status-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; color: #00f5d4; background: rgba(0, 245, 212, 0.15); border: 1px solid rgba(0, 245, 212, 0.4); padding: 3px 9px; border-radius: 12px; margin-bottom: 12px; }
+    </style>
+""", unsafe_allow_html=True)
+
+logo_html = f'<img src="{logo_src}" class="brand-name-img" alt="Logo">' if logo_src else '<span style="font-size:2rem; font-weight:700; color:#fff;">GetMeDomain</span>'
+st.markdown(f"""
     <div class="nav-bar">
         <div class="brand-logo-group">
-            <span class="brand-icon">🐶</span>
-            <span class="brand-name">GoSonny</span>
-            <span class="brand-badge">Pro</span>
+            <img src="{icon_src}" class="brand-icon-img" alt="Icon">
+            {logo_html}
+            <span class="brand-badge">Beta</span>
         </div>
-        <div style="font-size: 0.9rem; color: #8b949e; font-weight: 500;">Powered by Ollama Cloud LLM</div>
+        <div class="brand-subtext">CHEAP RDAP ENGINE<br><span style="font-size: 0.75rem; opacity: 0.8;">Live Availability Check</span></div>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
-# 2. Hero Header
-st.markdown(
-    """
+st.markdown("""
     <div class="hero-container">
-        <div class="hero-title">Find your next brandable domain</div>
-        <div class="hero-subtitle">Describe your product or business. We perform parallel RDAP lookups in real-time to find 10 verified available domains.</div>
+        <div class="hero-title">Find budget-friendly domains</div>
+        <div class="hero-subtitle">Autonomous AI agent prioritizing low-cost extensions like .in, .co.in, and .com via real-time RDAP registries.</div>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
-# 3. Search Input Section Across Full Width
 user_idea = st.text_area(
-    label="Business Concept",
-    placeholder="e.g. An AI platform that converts technical documentation into interactive video guides...",
+    "Describe your product or business concept:",
+    placeholder="e.g. An AI agent that converts technical books into interactive voice lessons...",
     height=100,
-    label_visibility="collapsed",
 )
 
-col_ext, col_btn = st.columns([3, 1])
+tld_options = st.multiselect(
+    "Target Budget Extensions (TLDs):",
+    [".in", ".co.in", ".com", ".org", ".net", ".ai"],
+    default=[],
+)
 
-with col_ext:
-    selected_tlds_list = st.multiselect(
-        "Extensions",
-        [".com", ".ai", ".io", ".app", ".dev", ".org"],
-        default=[".com", ".ai"],
-        label_visibility="collapsed",
+st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+
+btn_col1, btn_col2 = st.columns([1, 1])
+with btn_col1:
+    search_clicked = st.button(
+        "Find 10 Cheap Available Domains", type="primary", use_container_width=True
+    )
+with btn_col2:
+    rerun_clicked = st.button(
+        "Don't Like These? Rerun for 10 New Names", use_container_width=True
     )
 
-with col_btn:
-    search_clicked = st.button("🐶 Search Domains", type="primary", use_container_width=True)
-
-# 4. Agent Execution Flow
-if search_clicked:
+if search_clicked or rerun_clicked:
     if not user_idea.strip():
-        st.warning("Please describe your business concept first.")
+        st.warning("Please enter a business concept first!")
+    elif not tld_options:
+        st.warning("Please select at least one TLD extension below your prompt!")
     else:
-        st.session_state.run_count += 1
-        selected_tlds = ", ".join(selected_tlds_list) if selected_tlds_list else ".com, .ai"
+        if rerun_clicked:
+            st.session_state.run_count += 1
+        else:
+            st.session_state.run_count = 1
 
-        with st.status("Searching available domains across parallel threads...", expanded=True) as status:
+        selected_tlds = ", ".join(tld_options)
+
+        with st.status(
+            f"🤖 Batch-checking cheap domain candidates (Attempt #{st.session_state.run_count})...",
+            expanded=True,
+        ) as status:
             try:
                 agent = get_agent()
+
                 prompt_input = (
                     f"Business Idea: '{user_idea}'. "
                     f"Target Extensions: {selected_tlds}. "
                     f"Attempt #{st.session_state.run_count}. "
-                    f"Brainstorm 20 candidates and use check_domain_batch to verify them. Ensure you reach AT LEAST 10 AVAILABLE domains."
+                    f"Brainstorm 20 domain candidates using ONLY the specified target extensions and use check_domain_batch to verify them. Ensure you reach AT LEAST 10 AVAILABLE domains."
                 )
 
                 log_queue = queue.Queue()
@@ -211,6 +191,7 @@ if search_clicked:
                         agent_exception.append(ex)
 
                 total_start_time = time.perf_counter()
+
                 thread = threading.Thread(target=run_agent, daemon=True)
                 thread.start()
 
@@ -226,49 +207,75 @@ if search_clicked:
                     raise agent_exception[0]
 
                 status.update(
-                    label=f"Verified 10 available domains in {total_elapsed:.2f}s!",
+                    label=f"Verified 10 Cheap Domains in {total_elapsed:.2f}s!",
                     state="complete",
                     expanded=False,
                 )
 
                 final_content = agent_result["response"]["messages"][-1].content
                 st.session_state.last_results = final_content
+                
+                # Force a clean app rerun so the status box disappears and results render fresh
+                st.rerun()
 
             except Exception as e:
-                status.update(label="Search failed", state="error")
-                st.error(f"Error: {str(e)}")
+                status.update(label="❌ Search failed!", state="error")
+                st.error(f"Execution error: {str(e)}")
 
-# 5. Wide Grid Output (5 Cards per Row on Large Screens)
+# Render results independently from a fresh script rerun state
 if st.session_state.last_results:
-    st.markdown("---")
+    st.divider()
+
     content = st.session_state.last_results
 
     found_domains = re.findall(
-        r"\b[a-zA-Z0-9-]+\.(?:com|ai|io|app|dev|org)\b", content, re.IGNORECASE
+        r"\b[a-zA-Z0-9-]+\.(?:in|co\.in|com|org|net|ai)\b",
+        content,
+        re.IGNORECASE,
     )
-    unique_domains = list(dict.fromkeys([d.lower() for d in found_domains]))
+    unique_domains = list(
+        dict.fromkeys([d.lower() for d in found_domains])
+    )
 
-    st.subheader("10 Verified Available Domains")
+    st.subheader(
+        f" 10 Verified Budget-Friendly Domains (Attempt #{st.session_state.run_count})"
+    )
 
     if unique_domains:
-        # Utilizing full width with a 5-column wide grid layout
-        cols = st.columns(5)
-        for idx, domain in enumerate(unique_domains[:10]):
-            with cols[idx % 5]:
-                with st.container(border=True):
-                    st.markdown(f"<div class='domain-title'>🟢 {domain}</div>", unsafe_allow_html=True)
-                    st.caption("Available Now")
-                    
-                    godaddy_url = f"https://www.godaddy.com/domainsearch/find?domainToCheck={domain}"
-                    namecheap_url = f"https://www.namecheap.com/domains/registration/results/?domain={domain}"
+        formatted_tags = " &nbsp;&nbsp;•&nbsp;&nbsp; ".join(
+            [f"**`{d}`**" for d in unique_domains]
+        )
+        st.success(f"**Available Now:** {formatted_tags}")
+        st.caption(
+            "Click a domain card below to proceed with quick registration check:"
+        )
+        
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-                    btn_c1, btn_c2 = st.columns(2)
-                    with btn_c1:
-                        st.link_button("GoDaddy", godaddy_url, use_container_width=True)
-                    with btn_c2:
-                        st.link_button("Namecheap", namecheap_url, use_container_width=True)
+        display_list = unique_domains[:10]
+        for i in range(0, len(display_list), 3):
+            row_domains = display_list[i:i+3]
+            cols = st.columns(3)
+            
+            for idx, domain in enumerate(row_domains):
+                godaddy_url = f"https://www.godaddy.com/domainsearch/find?domainToCheck={urllib.parse.quote(domain)}"
+                namecheap_url = f"https://www.namecheap.com/domains/registration/results/?domain={urllib.parse.quote(domain)}"
+
+                with cols[idx]:
+                    with st.container(border=True):
+                        st.markdown(f'<div class="domain-title">{domain}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<span class="status-badge">🟢 VERIFIED AVAILABLE</span>', unsafe_allow_html=True)
+                        
+                        b_col1, b_col2 = st.columns(2)
+                        with b_col1:
+                            st.link_button("GoDaddy ↗", godaddy_url, use_container_width=True)
+                        with b_col2:
+                            st.link_button("Namecheap ↗", namecheap_url, use_container_width=True)
     else:
-        st.warning("Could not automatically structure domain list. Check full output below.")
+        st.warning("See agent detailed output below.")
 
-    with st.expander("Show AI Reasoning & Descriptions", expanded=False):
-        st.markdown(content)
+    # st.markdown("<div style='margin-top: 1.5rem;'></div>", unsafe_allow_html=True)
+    # with st.expander(
+    #     "📄 View Detailed Agent Reasoning & Full Output", expanded=False
+    # ):
+    #     st.markdown(content)
